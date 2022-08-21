@@ -10,9 +10,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include "Config.h"
 #include "glcdfont.h"
-#include "GridTransformer.h"
 
 using namespace std;
 using namespace rgb_matrix;
@@ -50,7 +48,6 @@ static void sigintHandler(int s) {
 }
 
 static void usage(const char* progname) {
-  std::cerr << "Usage: " << progname << " [flags] [config-file]" << std::endl;
   std::cerr << "Flags:" << std::endl;
   rgb_matrix::PrintMatrixFlags(stderr);
 }
@@ -66,27 +63,12 @@ int main(int argc, char** argv) {
       return 1;
     }
 
-    Config config(&matrix_options, argc >= 2 ? argv[1] : "/dev/null");
-    cout << "Using config values: " << endl
-         << " display_width: " << config.getDisplayWidth() << endl
-         << " display_height: " << config.getDisplayHeight() << endl
-         << " panel_width: " << config.getPanelWidth() << endl
-         << " panel_height: " << config.getPanelHeight() << endl
-         << " chain_length: " << config.getChainLength() << endl
-         << " parallel_count: " << config.getParallelCount() << endl;
-
     // Initialize matrix library.
     // Create canvas and apply GridTransformer.
     RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
 
-    int panel_rows = config.getParallelCount();
-    int panel_columns = config.getChainLength();
-    if (config.hasTransformer()) {
-      GridTransformer grid = config.getGridTransformer();
-      canvas->ApplyStaticTransformer(grid);
-      panel_rows = grid.getRows();
-      panel_columns = grid.getColumns();
-    }
+    int panel_rows = 1;
+    int panel_columns = 1;
 
     cout << " grid rows: " << panel_rows << endl
          << " grid cols: " << panel_columns << endl;
@@ -96,8 +78,8 @@ int main(int argc, char** argv) {
     for (int j=0; j<panel_rows; ++j) {
       for (int i=0; i<panel_columns; ++i) {
         // Compute panel origin position.
-        int x = i*config.getPanelWidth();
-        int y = j*config.getPanelHeight();
+        int x = i*64;
+        int y = j*64;
         // Print the current grid position to the top left (origin) of the panel.
         stringstream pos;
         pos << i << "," << j;
