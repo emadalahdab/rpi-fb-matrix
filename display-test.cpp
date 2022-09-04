@@ -67,8 +67,8 @@ int main(int argc, char** argv) {
     // Create canvas and apply GridTransformer.
     RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
 
-    int panel_rows = 1;
-    int panel_columns = 1;
+    int panel_rows = 32;
+    int panel_columns = 64;
 
     cout << " grid rows: " << panel_rows << endl
          << " grid cols: " << panel_columns << endl;
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
       for (int i=0; i<panel_columns; ++i) {
         // Compute panel origin position.
         int x = i*64;
-        int y = j*64;
+        int y = j*32;
         // Print the current grid position to the top left (origin) of the panel.
         stringstream pos;
         pos << i << "," << j;
