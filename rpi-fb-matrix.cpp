@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
 
     // Initialize BCM functions and display capture class.
     bcm_host_init();
-    BCMDisplayCapture displayCapture(128, 64);
+    BCMDisplayCapture displayCapture(64, 64);
 
     // Loop forever waiting for Ctrl-C signal to quit.
     signal(SIGINT, sigintHandler);
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
       for (int y=0; y<64; ++y) {
         for (int x=0; x<64; ++x) {
           uint8_t red, green, blue;
-          displayCapture.getPixel(x, y, &red, &green, &blue);
+          displayCapture.getPixel(x+x_offset, y+y_offset, &red, &green, &blue);
           canvas->SetPixel(x, y, red, green, blue);
         }
       }
