@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
       displayCapture.capture();
       // Loop through the frame data and set the pixels on the matrix canvas.
       for (int y=0; y<64; ++y) {
-        for (int x=0; x<128; ++x) {
+        for (int x=0; x<64; ++x) {
           uint8_t red, green, blue;
           displayCapture.getPixel(x, y, &red, &green, &blue);
           canvas->SetPixel(x, y, red, green, blue);
