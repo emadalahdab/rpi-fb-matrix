@@ -63,7 +63,7 @@ public:
     _pitch = ALIGN_UP(_width*3, 32);
     _screen_data = new uint8_t[_pitch*_height];
 
-    vc_dispmanx_vsync_callback(display, vsync, NULL);
+//    vc_dispmanx_vsync_callback(display, vsync, NULL);
   }
 
   void capture() {
@@ -80,13 +80,13 @@ public:
     *b = row[x*3+2];
   }
 
-  void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
+/*  void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
     printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
     lasttime = microseconds;
-  }
+  }*/
 
   ~BCMDisplayCapture() {
     // Clean up BCM and other resources.
@@ -94,7 +94,7 @@ public:
       vc_dispmanx_resource_delete(_screen_resource);
     }
     if (_display != 0) {
-      vc_dispmanx_vsync_callback(display, NULL, NULL);
+//      vc_dispmanx_vsync_callback(display, NULL, NULL);
       vc_dispmanx_display_close(_display);
     }
     if (_screen_data != NULL) {
