@@ -140,6 +140,11 @@ static void usage(const char* progname) {
     rgb_matrix::PrintMatrixFlags(stderr, matrix_options, runtime_options);
 }
 
+
+// Create canvas and apply GridTransformer.
+RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
+BCMDisplayCapture displayCapture(128, 64);
+    
 int main(int argc, char** argv) {
   try {
     // Initialize from flags.
@@ -154,12 +159,10 @@ int main(int argc, char** argv) {
 
     // Initialize matrix library.
     // Create canvas and apply GridTransformer.
-    RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
     canvas->Clear();
 
     // Initialize BCM functions and display capture class.
     bcm_host_init();
-    BCMDisplayCapture displayCapture(128, 64);
 
     // Loop forever waiting for Ctrl-C signal to quit.
     signal(SIGINT, sigintHandler);
