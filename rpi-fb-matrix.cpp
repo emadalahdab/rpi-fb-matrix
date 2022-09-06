@@ -31,8 +31,18 @@ void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
   unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
   printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
   lasttime = microseconds;
-}
 
+    // Capture the current display image.
+  displayCapture.capture();
+  // Loop through the frame data and set the pixels on the matrix canvas.
+  for (int y=0; y<64; ++y) {
+    for (int x=0; x<128; ++x) {
+      uint8_t red, green, blue;
+      displayCapture.getPixel(x, y, &red, &green, &blue);
+      canvas->SetPixel(x, y, red, green, blue);
+    }
+  }
+}
 
 
 // Class to encapsulate all the logic for capturing an image of the Pi's primary
@@ -155,16 +165,6 @@ int main(int argc, char** argv) {
     signal(SIGINT, sigintHandler);
     cout << "Press Ctrl-C to quit..." << endl;
     while (running) {
-      // Capture the current display image.
-      displayCapture.capture();
-      // Loop through the frame data and set the pixels on the matrix canvas.
-      for (int y=0; y<64; ++y) {
-        for (int x=0; x<128; ++x) {
-          uint8_t red, green, blue;
-          displayCapture.getPixel(x, y, &red, &green, &blue);
-          canvas->SetPixel(x, y, red, green, blue);
-        }
-      }
       // Sleep for 25 milliseconds (40Hz refresh)
 //      usleep(25 * 1000);
     }
