@@ -81,6 +81,14 @@ public:
     *b = row[x*3+2];
   }
 
+  void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
+    printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
+    lasttime = microseconds;
+  }
+
   ~BCMDisplayCapture() {
     // Clean up BCM and other resources.
     if (_screen_resource != 0) {
@@ -103,16 +111,8 @@ private:
   DISPMANX_RESOURCE_HANDLE_T _screen_resource;
   VC_RECT_T _rect;
   uint8_t* _screen_data;
+  unsigned long lasttime = 0;
 };
-
-void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
-  printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
-  lasttime = microseconds;
-}
-
 
 static void sigintHandler(int s) {
   running = false;
