@@ -13,7 +13,6 @@
 #include <sys/mman.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/time.h>
 
 using namespace std;
 using namespace rgb_matrix;
@@ -22,28 +21,6 @@ using namespace rgb_matrix;
 // Will be set false by a SIGINT handler when ctrl-c is
 // pressed, then the main loop will cleanly exit.
 volatile bool running = true;
-
-unsigned long lasttime = 0;
-
-void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
-  printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
-  lasttime = microseconds;
-
-    // Capture the current display image.
-  displayCapture.capture();
-  // Loop through the frame data and set the pixels on the matrix canvas.
-  for (int y=0; y<64; ++y) {
-    for (int x=0; x<128; ++x) {
-      uint8_t red, green, blue;
-      displayCapture.getPixel(x, y, &red, &green, &blue);
-      canvas->SetPixel(x, y, red, green, blue);
-    }
-  }
-}
-
 
 // Class to encapsulate all the logic for capturing an image of the Pi's primary
 // display.  Manages all the BCM GPU and CPU resources automatically while in scope.
@@ -85,8 +62,6 @@ public:
     // to a larger size because of GPU surface memory size constraints.
     _pitch = ALIGN_UP(_width*3, 32);
     _screen_data = new uint8_t[_pitch*_height];
-
-    vc_dispmanx_vsync_callback(_display, vsync, NULL);
   }
 
   void capture() {
@@ -109,7 +84,6 @@ public:
       vc_dispmanx_resource_delete(_screen_resource);
     }
     if (_display != 0) {
-      vc_dispmanx_vsync_callback(_display, NULL, NULL);
       vc_dispmanx_display_close(_display);
     }
     if (_screen_data != NULL) {
@@ -140,11 +114,6 @@ static void usage(const char* progname) {
     rgb_matrix::PrintMatrixFlags(stderr, matrix_options, runtime_options);
 }
 
-
-// Create canvas and apply GridTransformer.
-RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
-BCMDisplayCapture displayCapture(128, 64);
-    
 int main(int argc, char** argv) {
   try {
     // Initialize from flags.
@@ -159,17 +128,29 @@ int main(int argc, char** argv) {
 
     // Initialize matrix library.
     // Create canvas and apply GridTransformer.
+    RGBMatrix *canvas = CreateMatrixFromOptions(matrix_options, runtime_options);
     canvas->Clear();
 
     // Initialize BCM functions and display capture class.
     bcm_host_init();
+    BCMDisplayCapture displayCapture(128, 64);
 
     // Loop forever waiting for Ctrl-C signal to quit.
     signal(SIGINT, sigintHandler);
     cout << "Press Ctrl-C to quit..." << endl;
     while (running) {
+      // Capture the current display image.
+      displayCapture.capture();
+      // Loop through the frame data and set the pixels on the matrix canvas.
+      for (int y=0; y<64; ++y) {
+        for (int x=0; x<128; ++x) {
+          uint8_t red, green, blue;
+          displayCapture.getPixel(x, y, &red, &green, &blue);
+          canvas->SetPixel(x, y, red, green, blue);
+        }
+      }
       // Sleep for 25 milliseconds (40Hz refresh)
-//      usleep(25 * 1000);
+      usleep(100 * 1000);
     }
     canvas->Clear();
     delete canvas;
