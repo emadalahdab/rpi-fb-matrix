@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
         }
       }
       // Sleep for 25 milliseconds (40Hz refresh)
-      usleep(33 * 1000);
+//      usleep(25 * 1000);
     }
     canvas->Clear();
     delete canvas;
