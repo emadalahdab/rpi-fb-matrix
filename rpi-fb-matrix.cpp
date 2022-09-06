@@ -25,6 +25,15 @@ volatile bool running = true;
 
 unsigned long lasttime = 0;
 
+void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
+  printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
+  lasttime = microseconds;
+}
+
+
 
 // Class to encapsulate all the logic for capturing an image of the Pi's primary
 // display.  Manages all the BCM GPU and CPU resources automatically while in scope.
@@ -107,14 +116,6 @@ private:
   VC_RECT_T _rect;
   uint8_t* _screen_data;
 };
-
-void vsync(DISPMANX_UPDATE_HANDLE_T u, void* arg) {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  unsigned long microseconds = (tv.tv_sec*1000000)+tv.tv_usec;
-  printf("%lu\tsync %lu\n", microseconds,microseconds-lasttime);
-  lasttime = microseconds;
-}
 
 static void sigintHandler(int s) {
   running = false;
